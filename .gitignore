@@ -1,6 +1,10 @@
 __pycache__/
 Barrack A/
+Caso2/
 .ipynb_checkpoints/
+factoring.py
 *.png
 *.html
 *.txt
+*.tiff
+*.tif

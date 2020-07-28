@@ -96,6 +96,7 @@ class Image_Multi():
 
 
         im_seg = Image_Multi()
-        im_seg.load_images(list_rasters[0], list_rasters[1], list_rasters[2], list_rasters[3], list_rasters[4])
+        im_seg.load_images(im_red = list_rasters[0], im_green = list_rasters[1], im_blue = list_rasters[2],
+                           im_nir = list_rasters[3], im_rededge = list_rasters[4])
 
         return im_seg
