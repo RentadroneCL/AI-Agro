@@ -50,3 +50,54 @@ Leaf area index | LAI= (3.618 x EVI – 0.118) > 0*
 Normalized Difference Water Index | NDWI = (Rnir - Swir) / (Rnir + Swir)*
 
 
+## **THE LIMITATION OF CASE**
+
+1. The multispectral orthomosaics have to be built before using the tool
+2. Charge the RGB bands separately
+3. Must know the format of the bands you will be using and the metadata of each image (tiff, GeoTiff)
+4. In this case the methodology and support only will be for Phantom 4 RTK Multispectral user.
+
+
+## **TO DO LIST**
+
+For the deveploment this work we follow the following checklist:
+    
+**- Mosaico vegetation index**
+ 
+ 1- NDVI
+ - Vineyards
+ - Musacles 
+ - Other crops
+
+2- GNDVI
+ - Vineyards
+ - Musacles 
+ - Other crops
+
+3- NDRE
+ - Vineyards
+ - Musacles 
+ - Other crops
+
+4- LCI
+ - Vineyards
+ - Musacles 
+ - Other crops
+
+5- OSAVI
+ - Vineyards
+ - Musacles 
+ - Other crops
+
+**-Labelin**
+
+1- Weed detection
+ - Vineyards
+ - Musacles 
+ - Other crops
+
+2- Disease detection
+ - Vineyards
+ - Musacles 
+ - Other crops
+
