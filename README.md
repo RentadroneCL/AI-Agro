@@ -106,3 +106,17 @@ For the deveploment this work we follow the following checklist:
 To complete the main objective we consider following diagram methodology (Image Nº1). Was proposed, which reflects the process of generating the information necessary for decision- making during the management of a production cycles of a crop in general. 
 
 ![Process_Diag](https://github.com/RentadroneCL/Precision_Agriculture/blob/master/Process_Diag.jpg)
+
+
+
+Several diagrams of sub- processes were also proposed.
+1- To assess the growth status of plants. Image Nº2,  NDVI multi-time series. 
+
+
+![Diagrama2](https://github.com/RentadroneCL/Precision_Agriculture/blob/master/Diagrama2.jpg)
+
+
+Minimum Viable Product (MVD) for NDVI
+
+
+
