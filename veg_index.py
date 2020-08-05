@@ -60,8 +60,32 @@ class Image_Multi():
 
         return 1.6*np.divide(self.im_nir - self.im_red, self.im_nir + self.im_red + 0.16 +epsilon)
 
+    def RGB(self, lim = 4000):
+        #Function return RGB GeoRaster
+
+        # Bounded values
+        Z = np.zeros((self.im_red.raster.shape[0], self.im_red.raster.shape[1], 3))
+        Z[:,:,0] = self.im_red.raster
+        Z[:,:,1] = self.im_green.raster
+        Z[:,:,2] = self.im_blue.raster
+
+        Z[Z[:, :, 0] > lim] = lim
+        Z[Z[:, :, 1] > lim] = lim
+        Z[Z[:, :, 2] > lim] = lim
+        Z[:, :, 0] = Z[:, :, 0] / (np.nanmax(Z[:, :, 0]) - np.nanmin(Z[:, :, 0]))
+        Z[:, :, 1] = Z[:, :, 1] / (np.nanmax(Z[:, :, 1]) - np.nanmin(Z[:, :, 1]))
+        Z[:, :, 2] = Z[:, :, 2] / (np.nanmax(Z[:, :, 2]) - np.nanmin(Z[:, :, 2]))
+
+        (xmin, xsize, x, ymax, y, ysize) = self.im_red.geot
+
+        return gr.GeoRaster(Z,(xmin, xsize, x, ymax, y, ysize),
+                            nodata_value=self.im_red.nodata_value,
+                            projection=self.im_red.projection,
+                            datatype=self.im_red.datatype)
+
     def Segmentation(self, List_P):
-        #List_P= [(P1_x, P1_y), (P2_x, P2_y)]
+
+        #List_P= [(P1_x, P1_y), (P2_x, P2_y), (P3_x, P3_y)] # Pixels not geocordinate
         epsilon = 0
 
 
