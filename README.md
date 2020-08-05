@@ -118,5 +118,5 @@ Several diagrams of sub- processes were also proposed.
 
 Minimum Viable Product (MVD) for NDVI
 
-
+![MPV-NDVI](https://github.com/RentadroneCL/Precision_Agriculture/blob/master/MPV-NDVI.jpg)
 
