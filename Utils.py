@@ -6,6 +6,9 @@ from sklearn import cluster
 from skimage import data
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
+from scipy import ndimage
+from scipy import signal
 
 def factors_number(n):
 # A function to print all prime factors of
@@ -137,7 +140,7 @@ def perspectiveTransform(Points):
     M = cv2.getPerspectiveTransform(Points_order, dst)
     return M, maxWidth, maxHeight
 
-def subdivision_rect(factors, maxWidth, maxHeight):
+def subdivision_rect(factors, maxWidth, maxHeight, merge = 0):
     ## From a rect (top-left, top-right, bottom-right, bottom-left) subidive in rectangle
 
     #factors = factors_number(n_divide)[-1] # First factor is smaller
@@ -148,6 +151,7 @@ def subdivision_rect(factors, maxWidth, maxHeight):
     #else:
     #    split_Width = [maxWidth / factors[0] * i for i in range(factors[0] + 1)]
     #    split_Height = [maxHeight / factors[1] * i for i in range(factors[1] + 1)]
+
     split_Width = [maxWidth / factors[0] * i for i in range(factors[0] + 1)]
     split_Height = [maxHeight / factors[1] * i for i in range(factors[1] + 1)]
 
@@ -155,9 +159,126 @@ def subdivision_rect(factors, maxWidth, maxHeight):
     for j in range(len(split_Height) - 1):
         for i in range(len(split_Width) - 1):
 
-            sub_division.append([(split_Width[i], split_Height[j]),
-                                 (split_Width[i+1], split_Height[j]),
-                                 (split_Width[i+1], split_Height[j+1]),
-                                 (split_Width[i], split_Height[j+1])])
+            sub_division.append([(max(split_Width[i] - merge, 0) , max(split_Height[j] - merge , 0)),
+                                 (min(split_Width[i+1] + merge , maxWidth - 1), max(split_Height[j] - merge , 0)),
+                                 (min(split_Width[i+1] + merge , maxWidth - 1), min(split_Height[j+1] + merge, maxHeight - 1)),
+                                 (max(split_Width[i] - merge, 0),  min(split_Height[j+1] + merge, maxHeight - 1))])
 
     return np.array(sub_division)
+
+
+def skeleton(bin_image, n_important = 100):
+    #From binary image (0,255) transform to skeleton edge
+
+    kernel_size = 3
+    edges = cv2.GaussianBlur((bin_image.copy()).astype(np.uint8),(kernel_size, kernel_size),0)
+    kernel = cv2.getStructuringElement(cv2.MORPH_CROSS,(5, 5))
+    height,width = edges.shape
+    skel = np.zeros([height,width],dtype=np.uint8)      #[height,width,3]
+    temp_nonzero = np.count_nonzero(edges)
+
+    while (np.count_nonzero(edges) != 0 ):
+        eroded = cv2.erode(edges,kernel)
+        #cv2.imshow("eroded",eroded)
+        temp = cv2.dilate(eroded,kernel)
+        #cv2.imshow("dilate",temp)
+        temp = cv2.subtract(edges,temp)
+        skel = cv2.bitwise_or(skel,temp)
+        edges = eroded.copy()
+
+    """This function returns the count of labels in a mask image."""
+    label_im, nb_labels = ndimage.label(skel)#, structure= np.ones((2,2))) ## Label each connect region
+    label_areas = np.bincount(label_im.ravel())[1:]
+    keys_max_areas = np.array(sorted(range(len(label_areas)), key=lambda k: label_areas[k], reverse = True)) +1
+    keys_max_areas = keys_max_areas[:n_important]
+    L = np.zeros(label_im.shape)
+    for i in keys_max_areas:
+        L[label_im == i] = i
+
+    labels = np.unique(L)
+    label_im = np.searchsorted(labels, L)
+    return label_im>0
+
+def angle_lines(skel_filter, n_important = 100, angle_resolution = 360, threshold = 100, min_line_length = 200, max_line_gap = 50, plot = False):
+    #Measure the angle of lines in skel_filter. Obs the angle is positive in clockwise.
+
+    rho = 1  # distance resolution in pixels of the Hough grid
+    theta = np.pi / angle_resolution  # angular resolution in radians of the Hough grid
+    #threshold = 100  # minimum number of votes (intersections in Hough grid cell)
+    #min_line_length = 200  # minimum number of pixels making up a line
+    #max_line_gap = 50  # maximum gap in pixels between connectable line segments
+
+    lines = cv2.HoughLines(np.uint8(skel_filter),rho, theta, threshold)
+    lines_P = cv2.HoughLinesP(np.uint8(skel_filter),rho, theta, threshold, np.array([]) ,min_line_length, max_line_gap)
+
+    theta_P = [np.pi/2 + np.arctan2(line[0][3] - line[0][1],line[0][2]-line[0][0])  for line in lines_P[:n_important]]
+
+    theta = lines[0:n_important,0,1]
+
+    h = np.histogram(np.array(theta), bins = angle_resolution, range=(-np.pi,np.pi))
+    peaks = signal.find_peaks_cwt(h[0], widths= np.arange(2,4))
+    h_P = np.histogram(np.array(theta_P), bins = angle_resolution, range=(-np.pi,np.pi))
+    peaks_P = signal.find_peaks_cwt(h_P[0], widths= np.arange(2,4))
+
+    #h= np.histogram(np.array(theta), bins = angle_resolution, range=(-np.pi,np.pi))
+    #peaks = argrelextrema(h[0], np.greater)
+    #h_P = np.histogram(np.array(theta_P), bins = angle_resolution, range=(-np.pi,np.pi))
+    #peaks_P = argrelextrema(h_P[0], np.greater)
+
+    mesh = np.array(np.meshgrid(h[1][peaks], h_P[1][peaks_P]))
+    combinations = mesh.T.reshape(-1, 2)
+    index_min = np.argmin([abs(a-b) for a,b in combinations])
+    theta_prop = np.mean(combinations[index_min])
+
+    if plot:
+        print('Theta in HoughLines: ', h[1][peaks])
+        print('Theta in HoughLinesP: ', h_P[1][peaks_P])
+        print('combinations: ', combinations)
+        print('Theta prop: ', theta_prop)
+
+
+        Z1 = np.ones((skel_filter.shape))*255
+        Z2 = np.ones((skel_filter.shape))*255
+
+        for line in lines[0:n_important]:
+            rho,theta = line[0]
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a*rho
+            y0 = b*rho
+            x1 = int(x0 + 1000*(-b))
+            y1 = int(y0 + 1000*(a))
+            x2 = int(x0 - 1000*(-b))
+            y2 = int(y0 - 1000*(a))
+            #print((x1,y1,x2,y2))
+            cv2.line(Z1,(x1,y1),(x2,y2),(0,0,255),2)
+
+        for line in lines_P[:n_important]:
+            x1,y1,x2,y2 = line[0]
+            cv2.line(Z2,(x1,y1),(x2,y2),(0,0,255),2)
+
+        plt.figure(0)
+        plt.figure(figsize=(16,8))
+
+        plt.imshow(skel_filter)
+        plt.title('Skel_filter')
+
+        fig, axs = plt.subplots(1, 2, figsize=(16,8))
+        axs[0].imshow(Z1)
+        axs[0].title.set_text('Lines HoughLines')
+
+        axs[1].imshow(Z2)
+        axs[1].title.set_text('Lines HoughLinesP')
+
+        fig, axs = plt.subplots(1, 2, figsize=(16,8))
+        axs[0].hist(lines[0:n_important,0,1], bins = 45, range=[-np.pi,np.pi])
+        axs[0].title.set_text('Lines  HoughLines theta Histogram')
+
+
+        axs[1].hist(theta_P, bins = 45, range=[-np.pi,np.pi])
+        axs[1].title.set_text('Lines HoughLinesP theta Histogram')
+        #print(lines.shape)
+        #print(lines_P.shape)
+
+
+    return theta_prop

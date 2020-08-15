@@ -108,9 +108,9 @@ class Image_Multi():
 
         eps = 5
 
-        if (min([f[0] for f in List_P]) - eps < 0) or (min([f[1] for f in List_P]) - eps < 0) or (max([f[1] for f in List_P]) - min([f[1] for f in List_P]) + 2 * eps > self.im_red.raster.shape[0]) or (max([f[0] for f in List_P]) - min([f[0] for f in List_P]) + 2 * eps > self.im_red.raster.shape[1]):
-            eps = 0
-            print("Activado epsilon")
+        while (min([f[0] for f in List_P]) - eps < 0) or (min([f[1] for f in List_P]) - eps < 0) or (max([f[1] for f in List_P]) - min([f[1] for f in List_P]) + 2 * eps > self.im_red.raster.shape[0]) or (max([f[0] for f in List_P]) - min([f[0] for f in List_P]) + 2 * eps > self.im_red.raster.shape[1]):
+            eps -= 1
+            #print("Activado epsilon")
 
         x_rect = np.uint(min([f[0] for f in List_P]) - eps)
         y_rect = np.uint(min([f[1] for f in List_P]) - eps)
@@ -128,14 +128,15 @@ class Image_Multi():
         for  Im in self.list_images():
 
             (xmin, xsize, x, ymax, y, ysize) = Im.geot
-
-            new_Im = gr.GeoRaster(Im.raster[y_rect: y_rect + h_rect, x_rect : x_rect + w_rect].copy(),
-                                 (xmin + xsize * w_rect, xsize, x, ymax + ysize * h_rect, y, ysize),
+            I = Im.raster[y_rect: y_rect + h_rect, x_rect : x_rect + w_rect].copy()
+            I[flags.reshape(I.shape)] = np.nan
+            new_Im = gr.GeoRaster(cv2.copyMakeBorder(I, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value= np.nan),
+                                 (xmin + xsize * (w_rect + 1), xsize, x, ymax + ysize * (h_rect + 1), y, ysize),
                                  nodata_value=Im.nodata_value,
                                  projection=Im.projection,
                                  datatype=Im.datatype)
 
-            new_Im.raster[flags.reshape(new_Im.raster.shape)] = np.nan
+            #new_Im.raster[flags.reshape(new_Im.raster.shape)] = np.nan
 
             list_rasters.append(new_Im.copy())
 
