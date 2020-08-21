@@ -108,7 +108,7 @@ class Image_Multi():
 
         eps = 5
 
-        while (min([f[0] for f in List_P]) - eps < 0) or (min([f[1] for f in List_P]) - eps < 0) or (max([f[1] for f in List_P]) - min([f[1] for f in List_P]) + 2 * eps > self.im_red.raster.shape[0]) or (max([f[0] for f in List_P]) - min([f[0] for f in List_P]) + 2 * eps > self.im_red.raster.shape[1]):
+        while (min([f[0] for f in List_P]) - eps < 0) or (min([f[1] for f in List_P]) - eps < 0) or (max([f[1] for f in List_P]) + eps > self.im_red.raster.shape[0]) or (max([f[0] for f in List_P]) + eps > self.im_red.raster.shape[1]):
             eps -= 1
             #print("Activado epsilon")
 

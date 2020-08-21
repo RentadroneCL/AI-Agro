@@ -140,7 +140,7 @@ def perspectiveTransform(Points):
     M = cv2.getPerspectiveTransform(Points_order, dst)
     return M, maxWidth, maxHeight
 
-def subdivision_rect(factors, maxWidth, maxHeight, merge = 0):
+def subdivision_rect(factors, maxWidth, maxHeight, merge_percentaje = 0):
     ## From a rect (top-left, top-right, bottom-right, bottom-left) subidive in rectangle
 
     #factors = factors_number(n_divide)[-1] # First factor is smaller
@@ -151,7 +151,8 @@ def subdivision_rect(factors, maxWidth, maxHeight, merge = 0):
     #else:
     #    split_Width = [maxWidth / factors[0] * i for i in range(factors[0] + 1)]
     #    split_Height = [maxHeight / factors[1] * i for i in range(factors[1] + 1)]
-
+    merge_Width = maxWidth * merge_percentaje
+    merge_Height = maxHeight * merge_percentaje
     split_Width = [maxWidth / factors[0] * i for i in range(factors[0] + 1)]
     split_Height = [maxHeight / factors[1] * i for i in range(factors[1] + 1)]
 
@@ -159,10 +160,10 @@ def subdivision_rect(factors, maxWidth, maxHeight, merge = 0):
     for j in range(len(split_Height) - 1):
         for i in range(len(split_Width) - 1):
 
-            sub_division.append([(max(split_Width[i] - merge, 0) , max(split_Height[j] - merge , 0)),
-                                 (min(split_Width[i+1] + merge , maxWidth - 1), max(split_Height[j] - merge , 0)),
-                                 (min(split_Width[i+1] + merge , maxWidth - 1), min(split_Height[j+1] + merge, maxHeight - 1)),
-                                 (max(split_Width[i] - merge, 0),  min(split_Height[j+1] + merge, maxHeight - 1))])
+            sub_division.append([(max(split_Width[i] - merge_Width, 0) , max(split_Height[j] - merge_Height , 0)),
+                                 (min(split_Width[i+1] + merge_Width , maxWidth - 1), max(split_Height[j] - merge_Height , 0)),
+                                 (min(split_Width[i+1] + merge_Width , maxWidth - 1), min(split_Height[j+1] + merge_Height, maxHeight - 1)),
+                                 (max(split_Width[i] - merge_Width, 0),  min(split_Height[j+1] + merge_Height, maxHeight - 1))])
 
     return np.array(sub_division)
 
@@ -189,7 +190,7 @@ def skeleton(bin_image, n_important = 100):
     """This function returns the count of labels in a mask image."""
     label_im, nb_labels = ndimage.label(skel)#, structure= np.ones((2,2))) ## Label each connect region
     label_areas = np.bincount(label_im.ravel())[1:]
-    keys_max_areas = np.array(sorted(range(len(label_areas)), key=lambda k: label_areas[k], reverse = True)) +1
+    keys_max_areas = np.array(sorted(range(len(label_areas)), key=lambda k: label_areas[k], reverse = True)) + 1
     keys_max_areas = keys_max_areas[:n_important]
     L = np.zeros(label_im.shape)
     for i in keys_max_areas:
@@ -197,6 +198,7 @@ def skeleton(bin_image, n_important = 100):
 
     labels = np.unique(L)
     label_im = np.searchsorted(labels, L)
+
     return label_im>0
 
 def angle_lines(skel_filter, n_important = 100, angle_resolution = 360, threshold = 100, min_line_length = 200, max_line_gap = 50, plot = False):
@@ -282,3 +284,27 @@ def angle_lines(skel_filter, n_important = 100, angle_resolution = 360, threshol
 
 
     return theta_prop
+
+def rgb2hsv(rgb):
+    """ convert RGB to HSV color space
+
+    :param rgb: np.ndarray
+    :return: np.ndarray
+    """
+
+    rgb = rgb.astype('float')
+    maxv = np.amax(rgb, axis=2)
+    maxc = np.argmax(rgb, axis=2)
+    minv = np.amin(rgb, axis=2)
+    minc = np.argmin(rgb, axis=2)
+
+    hsv = np.zeros(rgb.shape, dtype='float')
+    hsv[maxc == minc, 0] = np.zeros(hsv[maxc == minc, 0].shape)
+    hsv[maxc == 0, 0] = (((rgb[..., 1] - rgb[..., 2]) * 60.0 / (maxv - minv + np.spacing(1))) % 360.0)[maxc == 0]
+    hsv[maxc == 1, 0] = (((rgb[..., 2] - rgb[..., 0]) * 60.0 / (maxv - minv + np.spacing(1))) + 120.0)[maxc == 1]
+    hsv[maxc == 2, 0] = (((rgb[..., 0] - rgb[..., 1]) * 60.0 / (maxv - minv + np.spacing(1))) + 240.0)[maxc == 2]
+    hsv[maxv == 0, 1] = np.zeros(hsv[maxv == 0, 1].shape)
+    hsv[maxv != 0, 1] = (1 - minv / (maxv + np.spacing(1)))[maxv != 0]
+    hsv[..., 2] = maxv
+
+    return hsv
