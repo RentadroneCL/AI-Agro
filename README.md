@@ -35,7 +35,10 @@ Red | 650 nm
 Red Edge | 730 nm
 Near infrared | 840 nm
 
+## **Vegetation index calculations**
+
 The following spectral index can be generated from these lengths (Table Nº2).
+
 **Table Nº2:** Spectral index generated from the available wavelengths of camera on board UAV. 
 
 | Índex | Equation |
@@ -49,8 +52,13 @@ Enhanced Vegetation Index | EVI = 2.5( Rn- Rr)/ (Rn+ 6*Rr)-(7.5*Rb + 1)*
 Leaf area index | LAI= (3.618 x EVI – 0.118) > 0*
 Normalized Difference Water Index | NDWI = (Rnir - Swir) / (Rnir + Swir)*
 
+## **Defining plant health status labels**
 
-## **THE LIMITATION OF CASE**
+| | NDVI | NDVI < NDV2 |
+| -- | -- |--|
+Rank | Normalised Difference Index | NDVI = ( Rnir- Rr)/(Rnir+Rr)
+
+## **Limitations of this solution**
 
 1. The multispectral orthomosaics have to be built before using the tool
 2. Charge the RGB bands separately
