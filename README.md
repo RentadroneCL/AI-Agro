@@ -60,8 +60,8 @@ Rank | Description | Description
 -1 to 0 | Water, Bare Soils | Water, Bare Soils
 0 to 0,15 | Soils with sparse, sparse vegetation or crops in the initial stage of development (sprouting) | Poor vigor, weak plants
 0,15 to 0,30 | Plants in intermediate stage of development (leaf production) | Bad leaf / flower ratio
-0,30 to 0,45 | Plants in intermediate stage of development (leaf production) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
-0,45 to 0,60 | Plants in the adult stage or phase (fruit production) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
+0,30 to 0,45 | Plants in intermediate stage of development (leaf production) 
+0,45 to 0,60 | Plants in the adult stage or phase (fruit production) 
 0,60 to >0,80 | Plants in the adult stage or stage (Fruit maturity) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
 
 ## **Limitations of this solution**
