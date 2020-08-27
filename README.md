@@ -54,9 +54,15 @@ Normalized Difference Water Index | NDWI = (Rnir - Swir) / (Rnir + Swir)*
 
 ## **Defining plant health status labels**
 
-| | NDVI | NDVI < NDV2 |
+| | NDVI 1 | NDVI 1 < NDVI 2 |
 | -- | -- |--|
-Rank | Normalised Difference Index | NDVI = ( Rnir- Rr)/(Rnir+Rr)
+Rank | Description | Description
+-1 a 0 | Water, Bare Soils | Water, Bare Soils
+0 a 0,15 | Soils with sparse, sparse vegetation or crops in the initial stage of development (sprouting) | Poor vigor, weak plants
+0,15 a 0,30 | Plants in intermediate stage of development (leaf production) | Bad leaf / flower ratio
+0,30 a 0,45 | Plants in intermediate stage of development (leaf production) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
+0,45 a 0,60 | Plants in the adult stage or phase (fruit production) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
+0,60 a >0,80 | Plants in the adult stage or stage (Fruit maturity) / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
 
 ## **Limitations of this solution**
 
