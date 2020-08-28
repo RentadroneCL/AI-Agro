@@ -35,7 +35,10 @@ Red | 650 nm
 Red Edge | 730 nm
 Near infrared | 840 nm
 
+## **Vegetation index calculations**
+
 The following spectral index can be generated from these lengths (Table Nº2).
+
 **Table Nº2:** Spectral index generated from the available wavelengths of camera on board UAV. 
 
 | Índex | Equation |
@@ -50,7 +53,19 @@ Leaf area index | LAI= (3.618 x EVI – 0.118) > 0*
 Normalized Difference Water Index | NDWI = (Rnir - Swir) / (Rnir + Swir)*
 
 
-## **THE LIMITATION OF CASE**
+## **Defining plant health status labels**
+
+| | NDVI 1 | NDVI 1 < NDVI 2 |
+| -- | -- |--|
+Rank | Description | Description
+-1 to 0 | Water, Bare Soils | Water, Bare Soils
+0 to 0,15 | Soils with sparse, sparse vegetation or crops in the initial stage of development (sprouting) | Poor vigor, weak plants
+0,15 to 0,30 | Plants in intermediate stage of development (leaf production) | Bad leaf / flower ratio
+0,30 to 0,45 | Plants in intermediate stage of development (leaf production) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
+0,45 to 0,60 | Plants in the adult stage or phase (fruit production) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
+0,60 to >0,80 | Plants in the adult stage or stage (Fruit maturity) | Bad flower / fruit ratio; fruits with low sugar content, lack of color in the fruits, fruits of low caliber
+
+## **Limitations of this solution**
 
 1. The multispectral orthomosaics have to be built before using the tool
 2. Charge the RGB bands separately
