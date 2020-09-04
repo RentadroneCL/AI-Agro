@@ -3,6 +3,8 @@ import numpy as np
 import georasters as gr
 from matplotlib import path
 import cv2
+import Utils
+import scipy.ndimage as ndimage
 
 epsilon = 0.00001
 
@@ -148,3 +150,164 @@ class Image_Multi():
                            im_nir = list_rasters[3], im_rededge = list_rasters[4])
 
         return im_seg
+
+    def subdivision_rect(self, split_Weight = 10, split_Height = 2, overlap = 0.01):
+        ## subdivide image in rectangles, keep the perspective
+
+        Points = np.array(self.list_P)
+        Points_order = Utils.order_points_rect(Points)
+
+        M, maxWidth, maxHeight = Utils.perspectiveTransform(Points)
+
+        split_Weight, split_Height = 15, 3
+        sub_division = Utils.subdivision_rect([split_Weight, split_Height], maxWidth, maxHeight, overlap)
+
+        sub_division_origin = cv2.perspectiveTransform(np.array(sub_division), np.linalg.inv(M))
+
+        return np.uint(sub_division_origin)
+
+    def correction_subimage(self, List_P):
+        ## Rotate subimage with the objective of lines farming be vetical in transform crop
+        List_new_P = []
+        for P in List_P:
+
+            im = self.Segmentation(P)
+            NDVI = im.NDVI().raster
+
+            Points = np.array(im.list_P)
+
+            M, maxWidth, maxHeight = Utils.perspectiveTransform(Utils.order_points_rect(Points))
+
+            warped = cv2.warpPerspective(NDVI, M, (maxWidth, maxHeight))
+            warped[np.isnan(warped)] = 0
+
+            # Otsu
+            blur = cv2.GaussianBlur(warped * 255,(5,5),0).astype('uint8')
+            ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+            n_important = 100
+            skel_filter = Utils.skeleton(th3, n_important = 100)
+
+            theta_prop = Utils.angle_lines(skel_filter,  n_important = 100, angle_resolution = 720,
+                                           threshold = 100, min_line_length = 200,
+                                           max_line_gap = 50, plot = False)
+
+            center = (np.mean([point[0] for point in P]), np.mean([point[1] for point in P]))
+            matrix = cv2.getRotationMatrix2D(center=center, angle= -theta_prop*180/np.pi, scale=1)
+
+            new_P = cv2.transform(np.array([P]), matrix)[0]
+
+            List_new_P.append(new_P)
+
+        return List_new_P
+
+    def detector_lines(self,List_new_P,
+                            th_NDVI = 0.6,
+                            vertical_kernel_size_h = 10,
+                            vertical_kernel_size_w = 5,
+                            th_small_areas = 30,
+                            lines_width = 1,
+                            merge_bt_line = 10):
+        ## Input List of points of subimages, output   List of lines crop . One line is (top_left, top_right, bottom_right, bottom_left)
+
+        List_lines_origin_complete =  np.ones((0, 4, 2))
+
+        for P in List_new_P:
+
+            P = Utils.order_points_rect(P)
+            im = self.Segmentation(P)
+
+            Points = np.array(im.list_P)
+            M_sub, maxWidth, maxHeight = Utils.perspectiveTransform(Utils.order_points_rect(Points))
+
+            NDVI = cv2.warpPerspective(im.NDVI().raster, M_sub, (maxWidth, maxHeight))
+            H2 = (NDVI > th_NDVI).astype('uint8')
+            ### Create kernel rotate #########333
+
+            kernel = np.ones((vertical_kernel_size_h, vertical_kernel_size_w) , np.uint8)  # note this is a vertical kernel
+            #kernel = np.ones((5, 5) , np.uint8)
+
+            erode = cv2.erode(H2,kernel)
+            closing = cv2.morphologyEx(erode, cv2.MORPH_CLOSE, kernel)
+            skel = Utils.skeleton(closing, n_important = -1)
+
+
+            closing_skel = cv2.morphologyEx(skel.astype(float), cv2.MORPH_CLOSE, kernel)
+            closing_skel = cv2.morphologyEx(closing_skel, cv2.MORPH_CLOSE, kernel)
+
+            label_im, nb_labels = ndimage.label(closing_skel)#, structure= np.ones((2,2))) ## Label each connect region
+            label_areas = np.bincount(label_im.ravel())[1:]
+
+
+            L = np.zeros(label_im.shape)
+
+            for i in range(nb_labels):
+                if label_areas[i] > th_small_areas:
+                    L[label_im == (i + 1) ] = 1
+
+            L = cv2.morphologyEx(L, cv2.MORPH_CLOSE, kernel)
+
+            label_im, nb_labels = ndimage.label(L)#, structure= np.ones((2,2))) ## Label each connect region
+            label_areas = np.bincount(label_im.ravel())[1:]
+
+            List_Centroid_WH = []
+            for i in range(nb_labels):
+
+                I = np.zeros(label_im.shape)
+                I[label_im == (i + 1)] = 1
+                # calculate moments of binary image
+                Moments = cv2.moments(I)
+                # calculate x,y coordinate of center
+                cX = int(Moments["m10"] / Moments["m00"])
+                cY = int(Moments["m01"] / Moments["m00"])
+                cnts, hierarchy = cv2.findContours(I.astype('uint8'), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+                width = np.max([x[0][0] for x in cnts[0]]) - np.min([x[0][0] for x in cnts[0]])
+                height = np.max([y[0][1] for y in cnts[0]]) - np.min([y[0][1] for y in cnts[0]])
+                List_Centroid_WH.append((cX, cY, width, height))
+
+            x_min = np.min([x[0] - x[2]/2 for x in List_Centroid_WH])
+            x_max = np.max([x[0] + x[2]/2 for x in List_Centroid_WH])
+            y_min = np.min([y[1] - y[3]/2 for y in List_Centroid_WH])
+            y_max = np.max([y[1] + y[3]/2 for y in List_Centroid_WH])
+
+            L_xw = sorted([[x[0],x[2]] for x in List_Centroid_WH])
+
+            ## Filter width separation
+            th = np.mean(L_xw, axis=0)[1]
+            L_filter = [L_xw[0][0]]
+            L_width = [L_xw[0][1]]
+            for i in range(len(L_xw)):
+                if (abs(L_filter[-1] - L_xw[i][0]) > th):
+                    L_filter.append(L_xw[i][0])
+                    L_width.append(L_xw[i][1])
+
+            #filter mean dif separation
+            dif = [L_filter[i] - L_filter[i-1] for i in range(1, len(L_filter))]
+            th = np.mean(dif).astype('int') + np.std(dif).astype('int') - merge_bt_line
+            L_filter_2 = [L_filter[0]]
+            L_width_2 = [L_width[0]]
+            for i in range(len(L_filter)):
+                if (abs(L_filter_2[-1] - L_filter[i]) > th):
+                    L_filter_2.append(L_filter[i])
+                    L_width_2.append(L_width[i])
+
+            ####################### List of Polygons ################
+            List_lines = [] #(top-left, top-right,bottom-right, bottom-left
+            avg_width = lines_width #np.mean(L_width_2)/3#L_width[i]
+            for i in range(len(L_filter_2)):
+
+
+                top_left = (int(L_filter_2[i] - avg_width/2) , y_min)
+                top_right = (int(L_filter_2[i] + avg_width/2) , y_min)
+                bottom_right = (int(L_filter_2[i] + avg_width/2) , y_max)
+                bottom_left = (int(L_filter_2[i] - avg_width/2) , y_max)
+                if  int(L_filter_2[i] - avg_width/2) > L.shape[1]:
+                    break
+
+                List_lines.append((top_left, top_right, bottom_right, bottom_left))
+
+            List_lines_origin = cv2.perspectiveTransform(np.array(List_lines), np.linalg.inv(M_sub)) # In subdivide image
+            List_lines_origin_complete = np.concatenate((List_lines_origin_complete,
+                                                        List_lines_origin - Utils.order_points_rect(Points)[0] + Utils.order_points_rect(P)[0]))# In image complet # Put line in big image
+
+        return List_lines_origin_complete

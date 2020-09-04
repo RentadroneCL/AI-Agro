@@ -308,3 +308,31 @@ def rgb2hsv(rgb):
     hsv[..., 2] = maxv
 
     return hsv
+
+def lines2circles(List_lines, r_circle = 10, n_important = -1):
+
+    centers_filter = np.ones((0, 2))
+    centers = np.ones((0, 2))
+
+    for i,Poly in enumerate(List_lines[:n_important]):
+
+        P1 = np.mean(Poly[0:2], axis=0)
+        P2 = np.mean(Poly[2:4], axis=0)
+
+        distance = np.linalg.norm(P1-P2)
+        n_step = int(distance/(r_circle *2 + 1))
+
+        centers = np.concatenate((centers, np.array([P1 * t/n_step + P2 * (n_step-t)/n_step for t in range(n_step + 1)]).astype(int)))
+
+    centers = (np.unique(np.uint(centers), axis = 0)).astype(np.float)
+
+        ### Filter circle so close
+    centers_filter = np.concatenate((centers_filter, np.array([centers[0]])))
+
+    for c in centers[1:]:
+        if np.min(np.linalg.norm(c - centers_filter, axis=1)) > 2 * r_circle:
+
+            centers_filter = np.concatenate((centers_filter,np.array([c])))
+
+
+    return  np.uint(np.array(centers_filter))
