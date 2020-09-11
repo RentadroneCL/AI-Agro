@@ -213,6 +213,10 @@ def angle_lines(skel_filter, n_important = 100, angle_resolution = 360, threshol
     lines = cv2.HoughLines(np.uint8(skel_filter),rho, theta, threshold)
     lines_P = cv2.HoughLinesP(np.uint8(skel_filter),rho, theta, threshold, np.array([]) ,min_line_length, max_line_gap)
 
+    if lines_P is None:
+        print("linea no encontrada")
+        return 0
+
     theta_P = [np.pi/2 + np.arctan2(line[0][3] - line[0][1],line[0][2]-line[0][0])  for line in lines_P[:n_important]]
 
     theta = lines[0:n_important,0,1]

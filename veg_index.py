@@ -119,6 +119,7 @@ class Image_Multi():
         h_rect = np.uint(max([f[1] for f in List_P]) - min([f[1] for f in List_P]) + 2 * eps)
         w_rect = np.uint(max([f[0] for f in List_P]) - min([f[0] for f in List_P]) + 2 * eps)
 
+
         List_P = [(x - x_rect, y - y_rect) for x,y in List_P]
         poly = path.Path(List_P)
 
@@ -149,6 +150,8 @@ class Image_Multi():
         im_seg.load_images(im_red = list_rasters[0], im_green = list_rasters[1], im_blue = list_rasters[2],
                            im_nir = list_rasters[3], im_rededge = list_rasters[4])
 
+        im_seg.list_P =  List_P
+
         return im_seg
 
     def subdivision_rect(self, split_Weight = 10, split_Height = 2, overlap = 0.01):
@@ -174,7 +177,8 @@ class Image_Multi():
             im = self.Segmentation(P)
             NDVI = im.NDVI().raster
 
-            Points = np.array(im.list_P)
+
+            Points = np.array(im.list_P, np.float)
 
             M, maxWidth, maxHeight = Utils.perspectiveTransform(Utils.order_points_rect(Points))
 
@@ -197,7 +201,7 @@ class Image_Multi():
 
             new_P = cv2.transform(np.array([P]), matrix)[0]
 
-            List_new_P.append(new_P)
+            List_new_P.append(new_P.copy())
 
         return List_new_P
 
@@ -264,6 +268,9 @@ class Image_Multi():
                 width = np.max([x[0][0] for x in cnts[0]]) - np.min([x[0][0] for x in cnts[0]])
                 height = np.max([y[0][1] for y in cnts[0]]) - np.min([y[0][1] for y in cnts[0]])
                 List_Centroid_WH.append((cX, cY, width, height))
+
+            if List_Centroid_WH == []:
+                continue
 
             x_min = np.min([x[0] - x[2]/2 for x in List_Centroid_WH])
             x_max = np.max([x[0] + x[2]/2 for x in List_Centroid_WH])
