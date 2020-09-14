@@ -1,5 +1,9 @@
 # Precision Agriculture
 
+![GitHub](https://img.shields.io/github/license/RentadroneCL/Precision_Agriculture)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+[![Open Source Helpers](https://www.codetriage.com/rentadronecl/precision_agriculture/badges/users.svg)](https://www.codetriage.com/rentadronecl/precision_agriculture)
+
 Model Precision_Agriculture
 ## SUMMARY
 
