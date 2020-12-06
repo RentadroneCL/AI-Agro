@@ -31,6 +31,18 @@ Among the biophysical parameters, the most important ones that can be determined
 
 Today the sensors of the cameras on board UAV of capturing spectral in the wavelengths of red, red- edge, near infrared and thermal (Table Nº1).
 
+## Software Features:
+- Open Source, distributed on GitHub platform
+- Able to map the state or main health problems in different crops visible in multispectral photographs taken with drones, allowing the calculation of the main types of vegetation indices (NVDI, GNDVI, NDRE, LCI, OSAVI, etc.)
+- Online and Local Multiplatform Operation.
+- Integrated to the Dronerising.com platform, owned by Rentadrone.cl.
+- At a minimum, it must be able to process JPG and TIFF (Multispectral Radiometric) images.
+- Generate KMZ maps, using the GPS information in metadata of the photos
+- Have a module for generating statistical reports regarding the number and types of problems found in photographs.
+- Possibility of generating multispectral orthomosaics for each band and for each vegetation index. In addition, it must be possible to extract pixel intensity values ​​in case calculations of geolocated variables are required.
+- Be able to perform batch processes with batches of photo files.
+
+
 **Table Nº1:** Multispectral band wavelengths available. 
 
 Multispectral bands
