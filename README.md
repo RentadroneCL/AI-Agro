@@ -77,9 +77,9 @@ Rank | Description | Description
 ## **Limitations of this solution**
 
 1. The multispectral orthomosaics have to be built before using the tool
-2. Charge the RGB bands separately
+2. Process the RGB and multispectral bands separately
 3. Must know the format of the bands you will be using and the metadata of each image (tiff, GeoTiff)
-4. In this case the methodology and support only will be for Phantom 4 RTK Multispectral user.
+4. At this moment, the methodology and support is only for Phantom 4 RTK Multispectral user.
 
 
 ## METHODOLOGY
