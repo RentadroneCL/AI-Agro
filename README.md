@@ -33,7 +33,7 @@ Key words: Vegetation index, phenological status, agricultural management, Open 
 - [ ] Generate KMZ maps, using the GPS information in metadata of the photos
 - [ ] Have a module for generating statistical reports regarding the number and types of problems found in photographs.
 
-**Table Nº1:** Multispectral band wavelengths available. 
+##  Multispectral band wavelengths available. 
 
 Today the sensors of the cameras on board UAV can capture spectral images in the wavelengths of red, red- edge, near infrared and thermal (Table Nº1).
 
