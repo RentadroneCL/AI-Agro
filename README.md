@@ -33,7 +33,7 @@ Key words: Vegetation index, phenological status, agricultural management, Open 
 - [ ] Generate KMZ maps, using the GPS information in metadata of the photos
 - [ ] Have a module for generating statistical reports regarding the number and types of problems found in photographs.
 
-##  Multispectral band wavelengths available. 
+##  Multispectral band wavelengths available.
 
 Today the sensors of the cameras on board UAV can capture spectral images in the wavelengths of red, red- edge, near infrared and thermal (Table Nº1).
 
@@ -52,7 +52,7 @@ Near infrared | 840 nm
 
 The following spectral index can be generated from these lengths (Table Nº2).
 
-**Table Nº2:** Spectral index generated from the available wavelengths of camera on board UAV. 
+**Table Nº2:** Spectral index generated from the available wavelengths of camera on board UAV.
 
 | Índex | Equation |
 | -- | -- |
@@ -84,14 +84,14 @@ Rank | Description | Description
 
 ## METHODOLOGY
 
-To complete the main objective we consider following diagram methodology (Image Nº1). Was proposed, which reflects the process of generating the information necessary for decision- making during the management of a production cycles of a crop in general. 
+To complete the main objective we consider following diagram methodology (Image Nº1). Was proposed, which reflects the process of generating the information necessary for decision- making during the management of a production cycles of a crop in general.
 
 ![Process_Diag](https://github.com/RentadroneCL/Precision_Agriculture/blob/master/Process_Diag.jpg)
 
 
 
 Several diagrams of sub- processes were also proposed.
-1- To assess the growth status of plants. Image Nº2,  NDVI multi-time series. 
+1- To assess the growth status of plants. Image Nº2,  NDVI multi-time series.
 
 
 ![Diagrama2](https://github.com/RentadroneCL/Precision_Agriculture/blob/master/Diagrama2.jpg)
@@ -101,3 +101,15 @@ Minimum Viable Product (MVD) for NDVI
 
 ![MPV-NDVI](https://github.com/RentadroneCL/Precision_Agriculture/blob/master/MPV-NDVI.jpg)
 
+# Contributing
+
+Contributions are welcome and will be fully credited. We accept contributions via Pull Requests on GitHub.
+
+## Pull Request Checklist
+
+Before sending your pull requests, make sure you followed this list.
+
+- Read [contributing guidelines](CONTRIBUTING.md).
+- Read [Code of Conduct](CODE_OF_CONDUCT.md).
+- Check if my changes are consistent with the [guidelines](https://github.com/RentadroneCL/Photovoltaic_Fault_Detector/blob/master/CONTRIBUTING.md#general-guidelines-and-philosophy-for-contribution).
+- Changes are consistent with the [Coding Style](https://github.com/RentadroneCL/Photovoltaic_Fault_Detector/blob/master/CONTRIBUTING.md#c-coding-style).
