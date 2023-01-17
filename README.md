@@ -4,11 +4,11 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 [![Open Source Helpers](https://www.codetriage.com/rentadronecl/precision_agriculture/badges/users.svg)](https://www.codetriage.com/rentadronecl/precision_agriculture)
 
-[Project Documentation](https://rentadronecl.github.io/docs/precision_agriculture)
+[Project Documentation](https://rentadronecl.github.io/docs/development/precision_agriculture)
 
 ## Forum
 
-This project is part of the [UNICEF Innovation Fund Discourse community](https://unicef-if.discourse.group/c/projects/rentadrone/10). You can post comments or questions about each category of [Rentadrone Developers](https://rentadrone.cl/developers/) algorithms. We encourage users to participate in the forum and to engage with fellow users.
+This project is part of the [UNICEF Innovation Fund Discourse community](https://unicef-if.discourse.group/c/projects/rentadrone/10). You can post comments or questions about each category of [Rentadrone Developers](https://rentadronecl.github.io) algorithms. We encourage users to participate in the forum and to engage with fellow users.
 
 Model Precision_Agriculture
 
